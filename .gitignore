@@ -1,5 +1,6 @@
 # python临时文件
-.pyc*
+__pycache__
+.pyc
 
 # 配置信息
 配置.py
