@@ -8,12 +8,12 @@
 '''
 
 from 配置.py import configRobot,configQywx
-from requests import post 
 from hashlib import md5
 from base64 import b64encode
 from requests_toolbelt import MultipartEncoder
 import os
 import json 
+import requests
 
 class 企业微信机器人:
     def _init__(self,口令=configRobot['默认'])
@@ -46,7 +46,7 @@ class 企业微信机器人:
                 'contect':text
             }
         })
-        post(self.__url,self.__data)  
+        requests.post(self.__url,self.__data)  
 
     def 发Markdown(self,Markdown):
         self.__Markdown = Markdown
@@ -63,7 +63,7 @@ class 企业微信机器人:
                 'content':mkd
                 }
         })
-        post(self.__url,self.__data) 
+        requests.post(self.__url,self.__data) 
 
     def 发图片(self,图片):
         '''
@@ -109,7 +109,7 @@ class 企业微信机器人:
             "articles" : 图文
             }
         })
-        post(self._url,self.__data)
+        requests.post(self._url,self.__data)
 
     def 发文件(self,文件):
         '''
@@ -133,7 +133,7 @@ class 企业微信机器人:
             'Content-Disposition':'form-data;name="media";filename="test.xlsx";filelength=6'
         }
         __urlUpload = 'https://qyapi.weixin.qq.com/cgi-bin/webhook/upload_media?key=%s&type=file' % key
-        response = post(__urlUpload,headers=headers,data=data)
+        response = requests.post(__urlUpload,headers=headers,data=data)
         mid = json.loads(response.text)['media_id']
         
         self.__data = json.dumps({
@@ -142,23 +142,130 @@ class 企业微信机器人:
                 'media_id':mid
             }
         })
-        post(self._url,self.__data)
+        requests.post(self._url,self.__data)
             
         
 class 企业微信API:
     def __init__(self,企业ID=configQywx['企业ID'],客户secret=configQywx['客户secret'],通讯录secret=configQywx['通讯录secret']):
-        pass
+        # 使用字典传输可能会是一个很大的坑!
+        self.__corpid = corpInfoDict['corpid']
+        self.__secretOrg = corpInfoDict['secret_org']
+        self.__secretCus = corpInfoDict['secret_cus']
 
-    def 获取架构(self):
-        pass
+        # 内部token
+        url = 'https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={corpid}&corpsecret={secret}'.format(corpid=self.__corpid,secret=self.__secretOrg)
+        jsn = json.loads(requests.get(url).text)
+        # print(jsn)
+        if jsn.get('errcode') == 0:
+            print('获取内部access_token成功')
+            self.__tokenOrg = jsn.get('access_token')
+        else:
+            print('获取内部access_token失败')
+            self.__tokenOrg = None
 
-    def 获取架构成员(self):
-        pass
+        # 外部token
+        url = 'https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={corpid}&corpsecret={secret}'.format(corpid=self.__corpid,secret=self.__secretCus)
+        jsn = json.loads(requests.get(url).text)
+        # print(jsn)
+        if jsn.get('errcode') == 0:
+            print('获取外部access_token成功')
+            self.__tokenCus = jsn.get('access_token')
+        else:
+            print('获取外部access_token失败')
+            self.__tokenCus = None
 
-    def 获取成员客户(self):
-        pass
-
-    def 获取客户(self):
-        pass
-
+    @property 
+    def 获取内部口令(self):
+        return self.__tokenOrg
     
+    @property 
+    def 获取外部口令(self):
+        return self.__tokenCus
+
+    def 生成部门(self):
+        url = 'https://qyapi.weixin.qq.com/cgi-bin/department/list?access_token={token}&id='.format(token=self.__tokenOrg)
+        jsn = json.loads(requests.get(url).text)
+        if jsn.get('errcode') == 0:
+            print('获取部门列表成功')
+            self.__deps = jsn.get('department')
+        else:
+            print('获取部门列表失败')
+
+    @property 
+    def 获取部门(self):
+        return self.__deps
+
+    def 生成部门成员(self,部门ID,是否递归=0):
+        url = 'https://qyapi.weixin.qq.com/cgi-bin/user/list?access_token={token}&department_id={depid}&fetch_child={isall}'.format(token=self.__tokenOrg,depid=部门ID,isall=是否递归)
+        jsn = json.loads(requests.get(url).text)
+        if jsn.get('errcode') == 0:
+            print('获取部门[%s]成员成功' % depid)
+            self.__depUser = jsn['userlist']
+        else:
+            print('获取部门[%s]成员失败' % depid)
+
+    @property 
+    def 获取部门成员(self):
+        return self.__depUser
+
+    def 生成成员客户(self,成员ID):
+        '''输入单个userid,返回客户id列表'''
+        url = 'https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list?access_token={token}&userid={userid}'.format(token=self.__tokenCus,userid=成员ID)
+        jsn = json.loads(requests.get(url).text)
+        # print(jsn)
+        if jsn.get('errcode') == 0:
+            print('获取[%s]客户列表成功' % userid)
+            self.__userCustomer = jsn.get('external_userid')
+        else:
+            # 没有外部客户的似乎会报错
+            print('获取[%s]客户列表失败' % userid)
+
+    @property 
+    def 获取成员客户(self):
+        return self.__userCustomer
+
+    def 生成客户详情(self,外部客户ID):
+        url = 'https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get?access_token={token}&external_userid={external_userid}'.format(token=self.__tokenCus,external_userid=外部客户ID)
+        jsn = json.loads(requests.get(url).text)
+        if jsn.get('errcode') == 0:
+            print('获取客户详情成功')
+            self.__customer = jsn.get('external_contact')
+        else:
+            print('获取客户详情失败')
+    
+    @property 
+    def 获取客户详情(self):
+        return self.__customer
+
+    def 生成客户群(self,游标=''):
+        url = 'https://qyapi.weixin.qq.com/cgi-bin/externalcontact/groupchat/list?access_token={token}'.format(token=self.__tokenCus)
+        data = json.dumps({
+            'cursor':游标,
+            'limit':1000
+        })
+        jsn = json.loads(requests.post(url,data).text)
+        if jsn.get('errcode') == 0:
+            print('获取客户群成功')
+            self.__group = jsn['group_chat_list']
+        else:
+            print('获取客户群失败')
+
+    @property 
+    def 获取客户群(self):
+        return self.__group 
+
+    def 生成客户群详情(self,客户群ID):
+        url = 'https://qyapi.weixin.qq.com/cgi-bin/externalcontact/groupchat/get?access_token={token}'.format(token=self.__tokenCus)
+        data = json.dumps({
+            'chat_id':客户群ID
+        })
+        jsn = json.loads(requests.post(url,data).text)
+        if jsn.get('errcode') == 0:
+            print('获取客户群详情成功')
+            self.__groupDetail = jsn['group_chat']
+        else:
+            print('获取客户群详情失败')
+
+    @property 
+    def 获取客户群详情(self):
+        return self.__groupDetail
