@@ -14,19 +14,19 @@
 '''
 
 import pymysql
-from 配置 import configDb
+from 配置 import 数据库配置
 
 class 数据库:
-    def __init__(self,配置=configDb):
+    def __init__(self,配置=数据库配置):
         self.db = pymysql.connect(
-            host=configDb['地址'],
-            user=configDb['账号'],
-            passwd=configDb['密码'],
-            db=configDb['数据库'],
-            port=configDb['端口']
+            host=配置['地址'],
+            user=配置['账号'],
+            passwd=配置['密码'],
+            db=配置['数据库'],
+            port=配置['端口']
         )
         self.cs = self.db.cursor()
-        print('数据库已连接:%s' % configDb['地址'])
+        print('数据库已连接:%s' % 配置['地址'])
 
     def 跑(self,脚本或存储过程名,脚本类型='查询',*存储过程参数):
         '''

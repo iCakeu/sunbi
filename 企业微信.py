@@ -7,7 +7,7 @@
 2 企业微信API
 '''
 
-from 配置.py import configRobot,configQywx
+from 配置 import 企业微信配置,企业微信机器人
 from hashlib import md5
 from base64 import b64encode
 from requests_toolbelt import MultipartEncoder
@@ -16,7 +16,7 @@ import json
 import requests
 
 class 企业微信机器人:
-    def _init__(self,口令=configRobot['默认'])
+    def _init__(self,口令=企业微信机器人['默认'])
         '''
         请设置一个默认的webhook
         '''
@@ -38,6 +38,7 @@ class 企业微信机器人:
         else:
             text = str(文本)
             self._sendText(text)
+        print('文本已发送')
 
     def _sendText(self,text):
         self.__data = json.dumps({
@@ -55,6 +56,7 @@ class 企业微信机器人:
                 self._sendMarkdown(md)
         else:
             self._sendMarkdown(Markdown)
+        print('Markdown已发送')
 
     def _sendMarkdown(self,mkd):
         self.__data = json.dumps({
@@ -73,8 +75,10 @@ class 企业微信机器人:
         if isinstance(图片,(list,tuple,set)):
             for img in 图片:
                 self._sendImage(img)
+            print('图片集已发送')
         elif isinstance(图片,str):
             self._sendImage(图片)
+            print('图片已发送')
         else:
             print('请传入完整的图片路径')
 
@@ -110,6 +114,7 @@ class 企业微信机器人:
             }
         })
         requests.post(self._url,self.__data)
+        print('图文已发送')
 
     def 发文件(self,文件):
         '''
@@ -119,8 +124,10 @@ class 企业微信机器人:
         if isinstance(文件,(list,tuple,set)):
             for file in 文件:
                 self._sendFile(file)
+            print('文件集已发送')
         elif isinstance(文件,str):
             self._sendFile(文件)
+            print('文件已发送')
         else:
             print('请传入完整的文件路径')
 
@@ -146,11 +153,11 @@ class 企业微信机器人:
             
         
 class 企业微信API:
-    def __init__(self,企业ID=configQywx['企业ID'],客户secret=configQywx['客户secret'],通讯录secret=configQywx['通讯录secret']):
+    def __init__(self,企业ID=企业微信配置['企业ID'],客户secret=企业微信配置['客户secret'],通讯录secret=企业微信配置['通讯录secret']):
         # 使用字典传输可能会是一个很大的坑!
-        self.__corpid = corpInfoDict['corpid']
-        self.__secretOrg = corpInfoDict['secret_org']
-        self.__secretCus = corpInfoDict['secret_cus']
+        self.__corpid    = 企业ID
+        self.__secretOrg = 通讯录secret
+        self.__secretCus = 客户secret
 
         # 内部token
         url = 'https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={corpid}&corpsecret={secret}'.format(corpid=self.__corpid,secret=self.__secretOrg)
