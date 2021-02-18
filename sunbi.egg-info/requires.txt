@@ -1,0 +1,7 @@
+requests
+pywin32
+selenium
+zmail
+
+[全栈]
+tornado
