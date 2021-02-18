@@ -10,21 +10,22 @@ from setuptools import find_packages, setup, Command
 
 # Package meta-data.
 NAME = 'sunbi'
-DESCRIPTION = 'class in one for Sunlands'
+DESCRIPTION = 'classes in one for Sunlands'
 URL = 'https://github.com/iCakeu/sunbi'
 EMAIL = 'danzhao@163.com'
 AUTHOR = 'Dan'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = '0.1.0'
+VERSION = '0.1.1'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    'requests', 'pywin32','selenium','zmail'
+    'requests','selenium','zmail','pymysql'
 ]
 
 # What packages are optional?
 EXTRAS = {
     '全栈': ['tornado'],
+    'excelforwin':['pywin32']
 }
 
 # The rest you shouldn't have to touch too much :)
