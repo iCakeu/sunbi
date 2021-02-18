@@ -1,7 +1,10 @@
 requests
-pywin32
 selenium
 zmail
+pymysql
+
+[excelforwin]
+pywin32
 
 [全栈]
 tornado

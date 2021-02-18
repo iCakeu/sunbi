@@ -1,7 +1,7 @@
 Metadata-Version: 2.1
 Name: sunbi
-Version: 0.1.0
-Summary: class in one for Sunlands
+Version: 0.1.1
+Summary: classes in one for Sunlands
 Home-page: https://github.com/iCakeu/sunbi
 Author: Dan
 Author-email: danzhao@163.com
@@ -55,3 +55,4 @@ Classifier: Programming Language :: Python :: Implementation :: PyPy
 Requires-Python: >=3.6.0
 Description-Content-Type: text/markdown
 Provides-Extra: 全栈
+Provides-Extra: excelforwin
