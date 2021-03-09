@@ -32,7 +32,7 @@ def 网页爬虫():
 
 
 ## 2. api数据传输
-def API取数入库(api配置,数据库配置)
+def API取数入库(api配置,数据库配置):
     '''
     从api获取数据 然后入库
     '''
@@ -47,7 +47,7 @@ def API取数入库(api配置,数据库配置)
         lst = [dict[key] for key in dict]
         listTuple.append(lst)
     
-    if len(listTuple) > 0
+    if len(listTuple) > 0:
         数据库 = 数据库(配置=数据库配置)
         if '开始日期' in 数据库配置:
             sql = 'delete from {table} where {column} between "{dateBegin}" and "{dateEnd}"'
@@ -146,23 +146,27 @@ def ftp文件传输(ftp配置,数据库配置):
         数据库 = 数据库(配置=数据库配置)
         isDel = False
         try:
-            # 删除日期只执行一次
-            if '开始日期' in 数据库配置:
-                if not isDel:
-                    sql = 'delete from {table} where {column} between "{dateBegin}" and "{dateEnd}"'
-                    数据库.跑(脚本或存储过程名=sql.format(
-                                            table=数据库配置['表名'],
-                                            columns=数据库配置['日期字段'],
-                                            dateBegin=数据库配置['开始日期'],
-                                            dateEnd=数据库配置['结束日期'],
-                                            ),脚本类型='',结束后关闭='否')
-                    
-                数据库.插(表名=数据库配置['表名'],数据=listTuple)
-                isDel = True
-            else:
-                sql = 'delete from {table}'
-                数据库.跑(脚本或存储过程名=sql.format(table=数据库配置['表名']),脚本类型='',结束后关闭='否')
-                数据库.插(表名=数据库配置['表名'],数据=listTuple)
+            for file in 文件列表:
+                df = pandas.read_excel(file)
+                df.fillna(value='',inplace=True)
+                listTuple = df.values.tolist()
+                # 删除日期只执行一次
+                if '开始日期' in 数据库配置:
+                    if not isDel:
+                        sql = 'delete from {table} where {column} between "{dateBegin}" and "{dateEnd}"'
+                        数据库.跑(脚本或存储过程名=sql.format(
+                                                table=数据库配置['表名'],
+                                                columns=数据库配置['日期字段'],
+                                                dateBegin=数据库配置['开始日期'],
+                                                dateEnd=数据库配置['结束日期'],
+                                                ),脚本类型='',结束后关闭='否')
+                        
+                    数据库.插(表名=数据库配置['表名'],数据=listTuple)
+                    isDel = True
+                else:
+                    sql = 'delete from {table}'
+                    数据库.跑(脚本或存储过程名=sql.format(table=数据库配置['表名']),脚本类型='',结束后关闭='否')
+                    数据库.插(表名=数据库配置['表名'],数据=listTuple)
         except Exception as e:
             print(e)
         finally:
