@@ -435,7 +435,7 @@ def 脚本导出邮件(分发配置,数据库配置):
     head = "<tr style='text-align:center;height:50px;'><th>{title}</th></tr>".format(title='</th><th>'.join(数据库配置['标题']))
     cont = []
     for x in 数据:
-        element = '<tr style='text-align:center;height:50px;'><td>{ele}</td></tr>'.format(ele='</td><td>'.join(x))
+        element = "<tr style='text-align:center;height:50px;'><td>{ele}</td></tr>".format(ele='</td><td>'.join(x))
         cont.append(element)
     cont = '\n'.join(cont)
 
