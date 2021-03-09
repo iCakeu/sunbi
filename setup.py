@@ -15,16 +15,15 @@ URL = 'https://github.com/iCakeu/sunbi'
 EMAIL = 'danzhao@163.com'
 AUTHOR = 'Dan'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = '0.1.2'
+VERSION = '0.1.3'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    'requests','selenium','zmail','pymysql'
+    'requests','selenium','zmail','pymysql','tornado'
 ]
 
 # What packages are optional?
 EXTRAS = {
-    '全栈': ['tornado'],
     'excelforwin':['pywin32']
 }
 
